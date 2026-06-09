@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="軽貨物ドライバー・運送会社向けの業務管理ツール。点呼記録、業務日報、タイムカード、荷物管理をすべて無料でサポート。">
+<title>tamulab｜軽貨物ドライバーの業務管理ツール</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #152040;
+    --navy-mid: #1e2f55;
+    --navy-light: #2a4080;
+    --accent: #2a6dd9;
+    --accent-hover: #1f5ab8;
+    --text-on-navy: #c8d8ed;
+    --text-muted-navy: #7a9abe;
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1a2744;
+    --text-muted: #64748b;
+    --radius: 12px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── Nav ── */
+  nav {
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+    text-decoration: none;
+  }
+  .logo em {
+    font-style: normal;
+    color: #5b9bd5;
+    font-weight: 400;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-muted-navy);
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover { color: #fff; }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--navy);
+    padding: 72px 32px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(42,109,217,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    color: #5b9bd5;
+    border: 1px solid rgba(91,155,213,0.4);
+    border-radius: 20px;
+    padding: 4px 14px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero h1 {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  .hero h1 span {
+    color: #5b9bd5;
+  }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--text-on-navy);
+    max-width: 480px;
+    margin: 0 auto 32px;
+    line-height: 1.8;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 32px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    background: var(--navy-mid);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+  }
+  .stat-item {
+    padding: 20px 40px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.07);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted-navy);
+    margin-top: 2px;
+  }
+
+  /* ── Section common ── */
+  section {
+    padding: 56px 32px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-head {
+    margin-bottom: 32px;
+  }
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ── Tools grid ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+  .tool-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(42,109,217,0.1);
+    transform: translateY(-2px);
+  }
+
+  .tool-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    font-size: 22px;
+  }
+  .ic-blue   { background: #dbeafe; color: #1d4ed8; }
+  .ic-teal   { background: #d1fae5; color: #065f46; }
+  .ic-amber  { background: #fef3c7; color: #92400e; }
+  .ic-purple { background: #ede9fe; color: #5b21b6; }
+
+  .tool-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .tool-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+  .tool-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .badge-free   { background: #dbeafe; color: #1e40af; }
+  .badge-saas   { background: #ede9fe; color: #5b21b6; }
+  .badge-pwa    { background: #d1fae5; color: #065f46; }
+  .badge-driver { background: #fef3c7; color: #92400e; }
+  .badge-biz    { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+  .tool-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 12px;
+    font-weight: 600;
+  }
+  .tool-link svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* ── Concept strip ── */
+  .concept-strip {
+    background: var(--navy);
+    padding: 56px 32px;
+  }
+  .concept-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .concept-strip .section-eyebrow { color: #5b9bd5; }
+  .concept-strip .section-title { color: #fff; }
+
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0;
+    margin-top: 28px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .concept-item {
+    padding: 28px 24px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  .concept-item:last-child { border-right: none; }
+  .concept-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: #5b9bd5;
+    margin-bottom: 6px;
+    line-height: 1;
+  }
+  .concept-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .concept-sub {
+    font-size: 12px;
+    color: var(--text-muted-navy);
+    line-height: 1.6;
+  }
+
+  /* ── About ── */
+  .about-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .about-text h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .about-text p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .about-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .about-tag {
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--navy);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 32px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .footer-logo em {
+    font-style: normal;
+    color: #5b9bd5;
+    font-weight: 400;
+  }
+  footer p {
+    font-size: 12px;
+    color: var(--text-muted-navy);
+    margin-top: 4px;
+  }
+  footer a {
+    color: var(--text-muted-navy);
+    text-decoration: none;
+  }
+  footer a:hover { color: #fff; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    nav { padding: 0 16px; }
+    .nav-links { gap: 16px; }
+    .hero { padding: 48px 16px 40px; }
+    .stats-bar { flex-direction: column; }
+    .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 16px; }
+    section { padding: 40px 16px; }
+    .about-box { grid-template-columns: 1fr; }
+    .concept-strip { padding: 40px 16px; }
+    .concept-grid { grid-template-columns: 1fr 1fr; }
+    .concept-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a class="logo" href="#">tamu<em>lab</em></a>
+  <ul class="nav-links">
+    <li><a href="#tools">ツール一覧</a></li>
+    <li><a href="#about">について</a></li>
+    <li><a href="mailto:tamulab.jp@gmail.com">お問い合わせ</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-eyebrow">軽貨物ドライバー向け業務ツール</div>
+  <h1>現場で使える、<span>軽貨物</span>の<br>業務管理ツール集</h1>
+  <p>点呼記録・業務日報・タイムカード・荷物管理。<br>個人事業主ドライバーの日常業務を、スマホひとつでシンプルに。</p>
+  <a class="btn-primary" href="#tools">ツールを見る</a>
+</div>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">4</div>
+    <div class="stat-label">公開ツール数</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">無料</div>
+    <div class="stat-label">個人事業主向け基本料金</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">PWA</div>
+    <div class="stat-label">スマホ対応・インストール不要</div>
+  </div>
+</div>
+
+<!-- Tools -->
+<section id="tools">
+  <div class="section-head">
+    <div class="section-eyebrow">TOOLS</div>
+    <div class="section-title">ツール一覧</div>
+  </div>
+  <div class="tools-grid">
+
+    <a class="tool-card" href="https://tamulab-jp.github.io/doramemo/" target="_blank" rel="noopener">
+      <div class="tool-icon-wrap ic-blue">📒</div>
+      <div class="tool-name">ドラメモ</div>
+      <div class="tool-desc">点呼記録・業務日報をスマホで簡単に入力・管理。紙の記録帳を卒業して現場をペーパーレスに。</div>
+      <div class="tool-badges">
+        <span class="badge badge-free">無料</span>
+        <span class="badge badge-driver">個人向け</span>
+        <span class="badge badge-pwa">PWA</span>
+      </div>
+      <div class="tool-link">
+        使ってみる
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg>
+      </div>
+    </a>
+
+    <a class="tool-card" href="https://tamulab-jp.github.io/tenko-saas/" target="_blank" rel="noopener">
+      <div class="tool-icon-wrap ic-teal">✅</div>
+      <div class="tool-name">点呼SaaS</div>
+      <div class="tool-desc">運送会社向けの点呼記録クラウド管理。複数ドライバーの記録を一元化して法令対応をサポート。</div>
+      <div class="tool-badges">
+        <span class="badge badge-saas">SaaS</span>
+        <span class="badge badge-biz">会社向け</span>
+      </div>
+      <div class="tool-link">
+        詳しく見る
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg>
+      </div>
+    </a>
+
+    <a class="tool-card" href="https://jls-g.com/timecard/" target="_blank" rel="noopener">
+      <div class="tool-icon-wrap ic-amber">🕐</div>
+      <div class="tool-name">タイムカード</div>
+      <div class="tool-desc">スタッフの勤怠打刻・給与計算をシンプルに管理。15分単位の丸め処理・休憩控除に対応。</div>
+      <div class="tool-badges">
+        <span class="badge badge-free">無料</span>
+        <span class="badge badge-biz">会社向け</span>
+        <span class="badge badge-pwa">PWA</span>
+      </div>
+      <div class="tool-link">
+        使ってみる
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg>
+      </div>
+    </a>
+
+    <a class="tool-card" href="https://tamulab-jp.github.io/ParcelSnap/delivery-app.html" target="_blank" rel="noopener">
+      <div class="tool-icon-wrap ic-purple">📦</div>
+      <div class="tool-name">ParcelSnap</div>
+      <div class="tool-desc">配達荷物をGPS順に自動並び替え。ルートを効率化してデリバリーをスマートに。</div>
+      <div class="tool-badges">
+        <span class="badge badge-free">無料</span>
+        <span class="badge badge-driver">個人向け</span>
+        <span class="badge badge-pwa">PWA</span>
+      </div>
+      <div class="tool-link">
+        使ってみる
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- Concept -->
+<div class="concept-strip">
+  <div class="concept-inner">
+    <div class="section-head">
+      <div class="section-eyebrow">CONCEPT</div>
+      <div class="section-title">tamulabのこだわり</div>
+    </div>
+    <div class="concept-grid">
+      <div class="concept-item">
+        <div class="concept-num">01</div>
+        <div class="concept-label">現場目線</div>
+        <div class="concept-sub">実際の軽貨物業務から生まれた、使いやすいUI設計</div>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">02</div>
+        <div class="concept-label">スマホ完結</div>
+        <div class="concept-sub">アプリインストール不要。ブラウザだけで現場から使える</div>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">03</div>
+        <div class="concept-label">基本無料</div>
+        <div class="concept-sub">個人事業主ドライバーは無料で使い続けられる</div>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">04</div>
+        <div class="concept-label">継続改善</div>
+        <div class="concept-sub">現場の声をもとに機能を継続的にアップデート</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- About -->
+<section id="about">
+  <div class="section-head">
+    <div class="section-eyebrow">ABOUT</div>
+    <div class="section-title">tamulabについて</div>
+  </div>
+  <div class="about-box">
+    <div class="about-text">
+      <h3>軽貨物の現場から生まれたツール</h3>
+      <p>tamulabは、神奈川県相模原市を拠点とする軽貨物運送会社JLS合同会社が、自社の業務効率化のために開発したツール群です。実際の現場で使い続けながら改善し、同じ課題を持つドライバーや運送会社に広く提供しています。</p>
+    </div>
+    <div class="about-tags">
+      <span class="about-tag">📍 神奈川県相模原市</span>
+      <span class="about-tag">🚐 軽貨物運送</span>
+      <span class="about-tag">👤 個人事業主向け</span>
+      <span class="about-tag">🏢 運送会社向け</span>
+      <span class="about-tag">📱 PWA対応</span>
+      <span class="about-tag">🆓 基本無料</span>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">tamu<em>lab</em></div>
+  <p>軽貨物ドライバーの業務管理ツール</p>
+  <p style="margin-top:12px;">
+    <a href="mailto:tamulab.jp@gmail.com">お問い合わせ</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/tamulab-jp" target="_blank" rel="noopener">GitHub</a>
+  </p>
+  <p style="margin-top:16px;">© 2026 tamulab / JLS合同会社</p>
+</footer>
+
+</body>
+</html>
